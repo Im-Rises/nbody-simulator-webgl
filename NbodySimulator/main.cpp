@@ -26,7 +26,7 @@ auto main(int argc, char* argv[]) -> int {
               << NBodySimulatorLauncher::PROJECT_LINK << std::endl
               << NBodySimulatorLauncher::PROJECT_AUTHOR << "\n"
               << std::endl;
-    NBodySimulatorLauncher particleEmissionLauncher;
-    particleEmissionLauncher.start();
+    NBodySimulatorLauncher nbodySimulatorLauncher;
+    nbodySimulatorLauncher.start();
     return 0;
 }

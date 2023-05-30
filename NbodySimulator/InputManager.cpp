@@ -1,6 +1,6 @@
 #include "InputManager.h"
 
-#include "NBodySimulatorLauncher.h"
+#include "NbodySimulatorLauncher.h"
 #include <GLFW/glfw3.h>
 
 void InputManager::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {

@@ -4,11 +4,9 @@
 #include "Camera/Camera.h"
 
 #ifdef __EMSCRIPTEN__
-#include "Entity/ParticleSimulatorTF/ParticleSimulatorTF.h"
+#include "Entity/NbodySimulator/NbodySimulator.h"
 #else
-#include "Entity/NBodySimulatorSSBO/NBodySimulatorSSBO.h"
-#include "Entity/NBodySimulatorTF/NBodySimulatorTF.h"
-
+#include "Entity/NbodySimulatorSSBO/NbodySimulatorSSBO.h"
 #endif
 
 class Scene {
@@ -19,7 +17,7 @@ public:
     Camera camera;
 
 #ifdef __EMSCRIPTEN__
-    ParticleSimulatorTF nbodySimulator;
+    NBodySimulator nbodySimulator;
 #else
     NBodySimulatorSSBO nbodySimulator;
 #endif
@@ -29,6 +27,7 @@ public:
 public:
     Scene(int display_w, int display_h);
 
+    //    void fixedUpdate(float deltaTime);
     void update(float deltaTime);
 
     void render();

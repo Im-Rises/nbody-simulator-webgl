@@ -1,5 +1,5 @@
-#ifndef NBODY_LAUNCHER_H
-#define NBODY_LAUNCHER_H
+#ifndef NBODY_SIMULATOR_LAUNCHER_H
+#define NBODY_SIMULATOR_LAUNCHER_H
 
 #include <memory>
 #include <string_view>
@@ -11,9 +11,9 @@ struct GLFWwindow;
 
 class NBodySimulatorLauncher {
 public:
-    static constexpr std::string_view PROJECT_NAME = "N-Body Simulator 3D";
-    static constexpr std::string_view PROJECT_VERSION = "0.0.1";
-    static constexpr std::string_view PROJECT_LINK = "https://github.com/Im-Rises/NBodySimulator";
+    static constexpr std::string_view PROJECT_NAME = "Nbody Simulator 3D";
+    static constexpr std::string_view PROJECT_VERSION = "1.0.0";
+    static constexpr std::string_view PROJECT_LINK = "https://github.com/Im-Rises/NbodySimulator";
     static constexpr std::string_view PROJECT_AUTHOR = "Im-Rises (Quentin Morel)";
 
 private:
@@ -24,6 +24,8 @@ private:
 
     int displayWidth, displayHeight;
     int windowPosX, windowPosY;
+
+    float fixedDeltaTime = 1.0F / 60.0F;
 
     std::unique_ptr<Scene> scene;
 
@@ -37,15 +39,13 @@ private:
     float attractorDistance = 10.0F;
     glm::vec3 mousePositionWorld;
 
-    static constexpr int MAX_PARTICLES_COUNT = 1000000;
+    static constexpr int MAX_PARTICLES_COUNT = 10000000;
 
-    float pointSize = 4.0F;
+    float pointSize = 1.0F;
 
 #ifndef __EMSCRIPTEN__
     bool isFullscreen = false;
 #endif
-
-    static constexpr int FRAME_PER_SECOND = 60;
 
 public:
     NBodySimulatorLauncher();
@@ -68,6 +68,7 @@ private:
 
     void handleUi(float deltaTime);
 
+    //    void fixedUpdateGame(float deltaTime);
     void updateGame(float deltaTime);
 
     void updateScreen();
@@ -108,4 +109,4 @@ private:
     static auto getGLMVersion() -> std::string;
 };
 
-#endif // NBODY_LAUNCHER_H
+#endif // NBODY_SIMULATOR_LAUNCHER_H

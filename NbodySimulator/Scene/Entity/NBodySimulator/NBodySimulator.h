@@ -1,5 +1,5 @@
-#ifndef PARTICLE_SIMULATOR_H
-#define PARTICLE_SIMULATOR_H
+#ifndef NBODY_SIMULATOR_H
+#define NBODY_SIMULATOR_H
 
 #include <vector>
 #include <glm/glm.hpp>
@@ -24,18 +24,14 @@ private:
 
     std::vector<Particle> particles;
 
-    glm::vec3 attractorPosition;
-
-    float isAttracting = 0.0F;
+    float isAttracting = 1.0F;
 
 public:
-    float spawnRadius = 2.0F;
-
-    float damping = 0.99F;
-    float particleMass = 50.0F;
-    float attractorMass = 250.0F;
+    float spawnRadius = 3.0F;
     float gravity = 1.0F;
+    float particleMass = 50.0F;
     float softening = 10.0F;
+    float damping = 0.99F;
 
 public:
     explicit NBodySimulator(int particleCount = 100000);
@@ -58,15 +54,15 @@ private:
     void randomizeParticles();
 
 public:
-    void setAttractorPosition(const glm::vec3& pos);
-
-    void setIsAttracting(const bool& value);
-
-    [[nodiscard]] auto getIsAttracting() const -> bool;
-
+    //     void setAttractorPosition(const glm::vec3& pos);
+    //
+    //     void setIsAttracting(const bool& value);
+    //
+    //     [[nodiscard]] auto getIsAttracting() const -> bool;
+    //
     void setParticlesCount(const size_t& count);
 
     [[nodiscard]] auto getParticlesCount() const -> size_t;
 };
 
-#endif // PARTICLE_SIMULATOR_H
+#endif // NBODY_SIMULATOR_H

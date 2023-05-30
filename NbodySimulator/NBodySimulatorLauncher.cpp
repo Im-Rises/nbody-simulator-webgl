@@ -1,9 +1,13 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cppcoreguidelines-pro-type-vararg"
 
-#include "NBodySimulatorLauncher.h"
+#include "NbodySimulatorLauncher.h"
 
 #include "InputManager.h"
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
@@ -76,8 +80,10 @@ NBodySimulatorLauncher::NBodySimulatorLauncher() {
         exit(1);
     glfwMakeContextCurrent(window);
     //    glfwSwapInterval(1); // Enable vsync
-    //    glfwSwapInterval(0); // Disable vsync
-    glfwWindowHint(GLFW_REFRESH_RATE, NBodySimulatorLauncher::FRAME_PER_SECOND);
+    glfwSwapInterval(0); // Disable vsync
+    //    glfwWindowHint(GLFW_REFRESH_RATE, 0); // Disable refresh rate
+    //    glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE); // Disable refresh rate
+    //    glfwWindowHint(GLFW_REFRESH_RATE, 60);
 
     // Callbacks
     glfwSetWindowUserPointer(window, this);
@@ -139,6 +145,10 @@ NBodySimulatorLauncher::NBodySimulatorLauncher() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+#ifndef __EMSCRIPTEN__
+    glPointSize(pointSize);
+#endif
+
     //    glEnable(GL_MULTISAMPLE);
     //    glEnable(GL_POINT_SMOOTH); // Deprecated
     //    glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
@@ -152,8 +162,6 @@ NBodySimulatorLauncher::NBodySimulatorLauncher() {
               << "Glad version: " << getGladVersion() << std::endl
               << "ImGui version: " << getImGuiVersion() << std::endl
               << "GLM version: " << getGLMVersion() << std::endl;
-
-    glPointSize(pointSize);
 }
 
 NBodySimulatorLauncher::~NBodySimulatorLauncher() {
@@ -169,8 +177,13 @@ void NBodySimulatorLauncher::start() {
     // Create the scene
     scene = std::make_unique<Scene>(displayWidth, displayHeight);
 
+#ifdef _WIN32
+    timeBeginPeriod(1);
+#endif
+
     // Variables for the main loop
-    float deltaTime = NAN;
+    std::chrono::high_resolution_clock::time_point previousTime = std::chrono::high_resolution_clock::now();
+    float deltaTime = 0.0F;
 
 #ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
@@ -183,18 +196,35 @@ void NBodySimulatorLauncher::start() {
     while (glfwWindowShouldClose(window) == 0)
 #endif
     {
-        deltaTime = ImGui::GetIO().DeltaTime;
+        auto currentTime = std::chrono::high_resolution_clock::now();
+
+        deltaTime = std::chrono::duration<float>(currentTime - previousTime).count();
+
+        auto startMs = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now());
 
         handleInputs();
 
         handleUi(deltaTime);
 
-        updateGame(deltaTime);
+        updateGame(fixedDeltaTime);
 
         updateScreen();
+
+        auto endMs = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now());
+        auto delayMs = fixedDeltaTime - std::chrono::duration_cast<std::chrono::duration<float>>(endMs - startMs).count();
+        if (delayMs > 0.0F)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(delayMs * 1000.0F)));
+        }
+
+        previousTime = currentTime;
     }
 #ifdef __EMSCRIPTEN__
     EMSCRIPTEN_MAINLOOP_END;
+#endif
+
+#ifdef _WIN32
+    timeEndPeriod(1);
 #endif
 }
 
@@ -247,10 +277,10 @@ void NBodySimulatorLauncher::handleInputs() {
         scene->camera.processMouseMovement(static_cast<float>(mouseDeltaX), static_cast<float>(mouseDeltaY));
     }
 
-    // Update particle simulator attractor if mouse is pressed or dragging
-    bool const isAttracting = InputManager::isKeyMouseSetAttractorPressed(window);
-    scene->nbodySimulator.setIsAttracting(isAttracting);
-    mousePositionWorld = projectMouse(posX, posY);
+    //    // Update particle simulator attractor if mouse is pressed or dragging
+    //    bool const isAttracting = InputManager::isKeyMouseSetAttractorPressed(window);
+    //    scene->nbodySimulator.setIsAttracting(isAttracting);
+    //    mousePositionWorld = projectMouse(posX, posY);
     //    scene->nbodySimulator.setAttractorPosition(mousePositionWorld);
 }
 
@@ -396,9 +426,18 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
             ImGui::SetNextWindowPos(ImVec2(5, 45), ImGuiCond_Once);
             ImGui::SetNextWindowCollapsed(isCollapsed, ImGuiCond_Once);
 #endif
-            ImGui::Begin("Particle simulator settings");
+            ImGui::Begin("Nbody simulator settings");
 
-            ImGui::Text("Particle count: %s", std::to_string(scene->nbodySimulator.getParticlesCount()).c_str());
+            ImGui::Text("Particle point size:");
+            ImGui::DragFloat("##pointSize", &pointSize, 0.1F, 1.0F, 100.0F);
+            ImGui::Button("Validate##PointSizeSetterButton");
+            if (ImGui::IsItemClicked())
+            {
+                glPointSize(pointSize);
+            }
+            ImGui::NewLine();
+
+            ImGui::Text("Nbody count: %s", std::to_string(scene->nbodySimulator.getParticlesCount()).c_str());
             static int particlesCount = static_cast<int>(scene->nbodySimulator.getParticlesCount());
             ImGui::DragInt("##particlesCount", &particlesCount, 1, 1, MAX_PARTICLES_COUNT);
             ImGui::Button("Validate##ParticlesCountSetterButton");
@@ -436,53 +475,45 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
             ImGui::DragFloat("##particleMass", &scene->nbodySimulator.particleMass, 0.1F, 0.1F, 100.0F);
             ImGui::NewLine();
 
-            ImGui::Text("Attractor mass:");
-            ImGui::DragFloat("##attractorMass", &scene->nbodySimulator.attractorMass, 0.1F, 0.1F, 100.0F);
-            ImGui::NewLine();
+            //            ImGui::Text("Attractor mass:");
+            //            ImGui::DragFloat("##attractorMass", &scene->nbodySimulator.attractorMass, 0.1F, 0.1F, 100.0F);
+            //            ImGui::NewLine();
 
             ImGui::Text("Gravity:");
             ImGui::DragFloat("##gravity", &scene->nbodySimulator.gravity, 0.1F, 0.1F, 100.0F);
             ImGui::NewLine();
 
-            ImGui::Text("Distance offset:");
-            ImGui::DragFloat("##distanceOffset", &scene->nbodySimulator.softening, 0.1F, 0.1F, 100.0F);
+            ImGui::Text("Softening:");
+            ImGui::DragFloat("##softening", &scene->nbodySimulator.softening, 0.1F, 0.1F, 100.0F);
             ImGui::NewLine();
 
             ImGui::Text("Damping:");
             ImGui::DragFloat("##damping", &scene->nbodySimulator.damping, 0.0F, 0.0F, 1.0F);
 
-            ImGui::Text("Visual Particle size:");
-            ImGui::DragFloat("##visualParticleSize", &this->pointSize, 0.1F, 0.1F, 100.0F);
-            ImGui::Button("Validate##VisualParticleSizeSetterButton");
-            if (ImGui::IsItemClicked())
-            {
-                glPointSize(this->pointSize);
-            }
-
             ImGui::End();
         }
 
         {
-#ifdef __EMSCRIPTEN__
-            static bool isCollapsed = true;
-            ImGui::SetNextWindowPos(ImVec2(5, 65), ImGuiCond_Once);
-            ImGui::SetNextWindowCollapsed(isCollapsed, ImGuiCond_Once);
-#endif
-            ImGui::Begin("Mouse controls");
-
-            ImGui::Text("Is attracting: %s", scene->nbodySimulator.getIsAttracting() ? "true" : "false");
-
-            ImGui::Text("Mouse position world:");
-            ImGui::Text("X: %f", mousePositionWorld.x);
-            ImGui::SameLine();
-            ImGui::Text("Y: %f", mousePositionWorld.y);
-            ImGui::SameLine();
-            ImGui::Text("Z: %f", mousePositionWorld.z);
-
-            ImGui::Text("Attractor distance from camera:");
-            ImGui::DragFloat("##attractorDistance", &attractorDistance, 0.1F, 0.0F, 100.0F);
-
-            ImGui::End();
+            // #ifdef __EMSCRIPTEN__
+            //             static bool isCollapsed = true;
+            //             ImGui::SetNextWindowPos(ImVec2(5, 65), ImGuiCond_Once);
+            //             ImGui::SetNextWindowCollapsed(isCollapsed, ImGuiCond_Once);
+            // #endif
+            //             ImGui::Begin("Mouse controls");
+            //
+            //             ImGui::Text("Is attracting: %s", scene->nbodySimulator.getIsAttracting() ? "true" : "false");
+            //
+            //             ImGui::Text("Mouse position world:");
+            //             ImGui::Text("X: %f", mousePositionWorld.x);
+            //             ImGui::SameLine();
+            //             ImGui::Text("Y: %f", mousePositionWorld.y);
+            //             ImGui::SameLine();
+            //             ImGui::Text("Z: %f", mousePositionWorld.z);
+            //
+            //             ImGui::Text("Attractor distance from camera:");
+            //             ImGui::DragFloat("##attractorDistance", &attractorDistance, 0.1F, 0.0F, 100.0F);
+            //
+            //             ImGui::End();
         }
 #ifndef __EMSCRIPTEN__
     }
@@ -498,6 +529,10 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
         disableImGuiFocusOnStart = false;
     }
 }
+
+// void NBodySimulatorLauncher::fixedUpdateGame(float deltaTime) {
+//     scene->fixedUpdate(deltaTime);
+// }
 
 void NBodySimulatorLauncher::updateGame(float deltaTime) {
     scene->update(deltaTime);

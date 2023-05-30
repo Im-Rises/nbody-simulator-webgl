@@ -1,30 +1,36 @@
-set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/dependencies/imgui)
-set(GLAD_DIR ${CMAKE_SOURCE_DIR}/dependencies/glad)
+include_directories("${CMAKE_SOURCE_DIR}/dependencies")
+include_directories("${CMAKE_SOURCE_DIR}/dependencies/glad/include")
+include_directories("${CMAKE_SOURCE_DIR}/dependencies/glfw/include")
 
-include_directories(${CMAKE_SOURCE_DIR}/dependencies/glad/include)
-include_directories(${CMAKE_SOURCE_DIR}/dependencies)
+file(GLOB_RECURSE SRCS_HEADERS_IMGUI "${CMAKE_SOURCE_DIR}/dependencies/imgui/*.cpp" "${CMAKE_SOURCE_DIR}/dependencies/imgui/*.h")
+file(GLOB_RECURSE SRCS_HEADERS_GLAD "${CMAKE_SOURCE_DIR}/dependencies/glad/*.c" "${CMAKE_SOURCE_DIR}/dependencies/glad/*.h")
 
-set(GLAD_SOURCES
-        ${GLAD_DIR}/src/glad.c
-        )
+file(GLOB_RECURSE SRCS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/*.cpp")
+file(GLOB_RECURSE HEADERS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/*.h")
 
-set(IMGUI_SOURCES
-        ${IMGUI_DIR}/imgui.cpp
-        ${IMGUI_DIR}/imgui_demo.cpp
-        ${IMGUI_DIR}/imgui_draw.cpp
-        ${IMGUI_DIR}/imgui_tables.cpp
-        ${IMGUI_DIR}/imgui_widgets.cpp
-        ${IMGUI_DIR}/imgui_impl_glfw.cpp
-        ${IMGUI_DIR}/imgui_impl_opengl3.cpp
-        )
+set(OpenGL_GL_PREFERENCE GLVND)
+find_package(OpenGL 4.3 REQUIRED)
 
-file(GLOB_RECURSE SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+#find_package(OpenCL CONFIG REQUIRED)
 
-add_executable(${PROJECT_NAME}
-        main.cpp
-        ${IMGUI_SOURCES}
-        ${GLAD_SOURCES}
-        ${SRCS}
-        )
+add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS} ${SRCS_HEADERS_IMGUI} ${SRCS_HEADERS_GLAD})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+target_link_libraries(${PROJECT_NAME} OpenGL::GL)
+
+#target_link_libraries(${PROJECT_NAME} PRIVATE OpenCL::OpenCL)
+
+if (WIN32)
+    target_link_libraries(${PROJECT_NAME} winmm.lib)
+    if (MSVC)
+        target_link_libraries(${PROJECT_NAME} "${CMAKE_SOURCE_DIR}/dependencies/glfw/lib-vc2019/glfw3.lib")
+    elseif (MINGW)
+        target_link_libraries(${PROJECT_NAME} "${CMAKE_SOURCE_DIR}/dependencies/glfw/lib-mingw-w64/libglfw3.a")
+    endif ()
+elseif (UNIX)
+    find_package(glfw3 3.3 REQUIRED)
+    target_link_libraries(${PROJECT_NAME} glfw ${CMAKE_DL_LIBS})
+else ()
+    message(FATAL_ERROR "OS not configured in CMakeLists.txt")
+endif ()
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")

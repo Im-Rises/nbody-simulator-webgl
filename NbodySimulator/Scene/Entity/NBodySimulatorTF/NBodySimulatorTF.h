@@ -1,5 +1,5 @@
-#ifndef PARTICLE_SIMULATOR_TF_H
-#define PARTICLE_SIMULATOR_TF_H
+#ifndef NBODY_SIMULATOR_TF_H
+#define NBODY_SIMULATOR_TF_H
 
 #include <array>
 
@@ -30,17 +30,14 @@ class NBodySimulatorTF : public Entity {
     int particlesCount;
 
     float deltaTime = 0.0F;
-    glm::vec3 attractorPosition = glm::vec3(0.0F, 0.0F, 0.0F);
-    float isAttracting = 0.0F;
 
 public:
-    float spawnRadius = 2.0F;
-
-    float damping = 0.99F;
-    float particleMass = 50.0F;
-    float attractorMass = 250.0F;
+    float spawnRadius = 3.0F;
     float gravity = 1.0F;
+    float particleMass = 50.0F;
     float softening = 10.0F;
+    float damping = 0.99F;
+    glm::vec3 attractorPosition = glm::vec3(0.0F, 0.0F, 0.0F);
 
 public:
     explicit NBodySimulatorTF(int particlesCount = 100000);
@@ -63,11 +60,11 @@ private:
     void randomizeParticles(std::vector<Particle>& particles);
 
 public:
-    void setAttractorPosition(const glm::vec3& pos);
-
-    void setIsAttracting(const bool& value);
-
-    [[nodiscard]] auto getIsAttracting() const -> bool;
+    //     void setAttractorPosition(const glm::vec3& pos);
+    //
+    //     void setIsAttracting(const bool& value);
+    //
+    //     [[nodiscard]] auto getIsAttracting() const -> bool;
 
     void setParticlesCount(const int& value);
 
@@ -75,4 +72,4 @@ public:
 };
 
 
-#endif // PARTICLE_SIMULATOR_TF_H
+#endif // NBODY_SIMULATOR_TF_H
