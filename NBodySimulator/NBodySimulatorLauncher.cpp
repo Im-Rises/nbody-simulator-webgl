@@ -1,7 +1,7 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cppcoreguidelines-pro-type-vararg"
 
-#include "NbodySimulatorLauncher.h"
+#include "NBodySimulatorLauncher.h"
 
 #include "InputManager.h"
 
