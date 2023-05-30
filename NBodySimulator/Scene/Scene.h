@@ -4,9 +4,9 @@
 #include "Camera/Camera.h"
 
 #ifdef __EMSCRIPTEN__
-#include "Entity/NbodySimulator/NbodySimulator.h"
+#include "Entity/NBodySimulator/NBodySimulator.h"
 #else
-#include "Entity/NbodySimulatorSSBO/NbodySimulatorSSBO.h"
+#include "Entity/NBodySimulatorSSBO/NBodySimulatorSSBO.h"
 #endif
 
 class Scene {
