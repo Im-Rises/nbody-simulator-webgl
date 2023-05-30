@@ -1,7 +1,7 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cppcoreguidelines-pro-type-vararg"
 
-#include "NbodySimulatorLauncher.h"
+#include "NBodySimulatorLauncher.h"
 
 #include "InputManager.h"
 
@@ -428,6 +428,7 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
 #endif
             ImGui::Begin("Nbody simulator settings");
 
+#ifndef __EMSCRIPTEN__
             ImGui::Text("Particle point size:");
             ImGui::DragFloat("##pointSize", &pointSize, 0.1F, 1.0F, 100.0F);
             ImGui::Button("Validate##PointSizeSetterButton");
@@ -436,6 +437,7 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
                 glPointSize(pointSize);
             }
             ImGui::NewLine();
+#endif
 
             ImGui::Text("Nbody count: %s", std::to_string(scene->nbodySimulator.getParticlesCount()).c_str());
             static int particlesCount = static_cast<int>(scene->nbodySimulator.getParticlesCount());
