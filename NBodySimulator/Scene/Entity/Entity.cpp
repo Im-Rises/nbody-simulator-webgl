@@ -1,21 +1,7 @@
 #include "Entity.h"
 
 #include <glm/gtc/matrix_transform.hpp>
-
-// Entity::Entity() {
-//     // Should be called in the constructor of the derived class
-//     //    updateModelMatrix();
-// }
-
-// Entity::Entity(const std::string& vertexSource, const std::string& fragmentSource) : shader(
-//                                                                                          vertexSource.c_str(),
-//                                                                                          fragmentSource.c_str()) {
-//     // Should be called in the constructor of the derived class
-//     //    updateModelMatrix();
-// }
-
-// Entity::~Entity() {
-// }
+#include <iostream>
 
 void Entity::updateModelMatrix() {
     modelMatrix = glm::mat4(1.0F);
@@ -30,6 +16,7 @@ void Entity::setIsPaused(bool isPaused) {
     this->isPaused = isPaused;
 }
 
-[[maybe_unused]] auto Entity::getIsPaused() const -> bool {
+[[maybe_unused]] auto
+Entity::getIsPaused() const -> bool {
     return isPaused;
 }
