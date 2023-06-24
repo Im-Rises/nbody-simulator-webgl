@@ -49,8 +49,6 @@ void NBodySimulatorSSBO::render(glm::mat4 cameraViewMatrix, glm::mat4 cameraProj
     shader.setFloat("u_gravity", gravity);
     shader.setFloat("u_softening", softening);
     shader.setFloat("u_isRunning", static_cast<float>(!isPaused));
-    //    shader.setFloat("u_attractorMass", attractorMass);
-    //    shader.setVec3("u_attractorPosition", attractorPosition);
 
     // Bind the VAO
     glBindVertexArray(VAO);
@@ -87,32 +85,24 @@ void NBodySimulatorSSBO::reset() {
 void NBodySimulatorSSBO::randomizeParticles(std::vector<Particle>& particles) {
     // Init the random engine
     std::mt19937 randomEngine;
-    std::uniform_real_distribution<float> randomFloats(0.0F, static_cast<float>(2.0F * M_PI));
+    std::uniform_real_distribution<float> randomAngle(0.0F, static_cast<float>(2.0F * M_PI));
+    std::uniform_real_distribution<float> randomColorValue(0.0F, 1.0F);
+    //    std::uniform_real_distribution<float> randomMass(1.0F, 1.0F);
 
     // Init the particles as a sphere
     for (auto& particle : particles)
     {
-        const float angle1 = randomFloats(randomEngine);
-        const float angle2 = randomFloats(randomEngine);
+        const float angle1 = randomAngle(randomEngine);
+        const float angle2 = randomAngle(randomEngine);
         const float x = spawnRadius * std::sin(angle1) * std::cos(angle2);
         const float y = spawnRadius * std::sin(angle1) * std::sin(angle2);
         const float z = spawnRadius * std::cos(angle1);
         particle.position = glm::vec3(x, y, z) + position;
         particle.velocity = glm::vec3(0.0F, 0.0F, 0.0F);
+        //        particle.mass = randomMass(randomEngine);
+        particle.color = glm::vec3(randomColorValue(randomEngine), randomColorValue(randomEngine), randomColorValue(randomEngine));
     }
 }
-
-// void NBodySimulatorSSBO::setAttractorPosition(const glm::vec3& pos) {
-//     attractorPosition = pos;
-// }
-//
-// void NBodySimulatorSSBO::setIsAttracting(const bool& value) {
-//     isAttracting = static_cast<float>(value);
-// }
-//
-// auto NBodySimulatorSSBO::getIsAttracting() const -> bool {
-//     return isAttracting != 0.0F;
-// }
 
 void NBodySimulatorSSBO::setParticlesCount(const int& value) {
     particlesCount = value;

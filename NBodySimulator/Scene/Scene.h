@@ -22,12 +22,9 @@ public:
     NBodySimulatorSSBO nbodySimulator;
 #endif
 
-    //    std::vector<Entity*> entities;
-
 public:
     Scene(int display_w, int display_h);
 
-    //    void fixedUpdate(float deltaTime);
     void update(float deltaTime);
 
     void render();

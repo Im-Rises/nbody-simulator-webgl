@@ -1,7 +1,6 @@
 #include "NBodySimulator.h"
 
 #include <random>
-#include <iostream>
 
 #include "../../../Utility/piDeclaration.h"
 
@@ -12,15 +11,16 @@ const char* const NBodySimulator::VertexShaderSource =
 
         layout(location = 0) in vec3 a_position;
         layout(location = 1) in vec3 a_velocity;
+        layout(location = 2) in vec3 a_color;
 
         uniform mat4 u_mvp;
 
-        out vec3 v_velocity;
+        out vec3 v_color;
 
         void main()
         {
             gl_Position = u_mvp * vec4(a_position, 1.0);
-            v_velocity = a_velocity;
+            v_color = a_color;
             gl_PointSize = 1.0f;
         }
 )";
@@ -30,12 +30,13 @@ const char* const NBodySimulator::FragmentShaderSource =
 
         precision highp float;
 
-        in vec3 v_velocity;
+        in vec3 v_color;
 
         out vec4 o_fragColor;
 
         void main() {
-            vec3 v_color = vec3(min(v_velocity.y, 0.8f), max(v_velocity.x, 0.5f), min(v_velocity.z, 0.5f));
+//            vec3 v_color = vec3(min(v_velocity.y, 0.8f), max(v_velocity.x, 0.5f), min(v_velocity.z, 0.5f));
+//            o_fragColor = vec4(v_color, 1.0f);
             o_fragColor = vec4(v_color, 1.0f);
         }
 )";
@@ -43,6 +44,7 @@ const char* const NBodySimulator::FragmentShaderSource =
 NBodySimulator::NBodySimulator(int particleCount) : shader(VertexShaderSource, FragmentShaderSource, false) {
     // Resize the particles vector
     particles.resize(particleCount);
+    sumForces.resize(particleCount);
 
     // Init the particles
     randomizeParticles();
@@ -67,6 +69,8 @@ NBodySimulator::NBodySimulator(int particleCount) : shader(VertexShaderSource, F
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)offsetof(Particle, velocity));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)offsetof(Particle, color));
+    glEnableVertexAttribArray(2);
 
     // Unbind the VAO
     glBindVertexArray(0);
@@ -84,36 +88,33 @@ void NBodySimulator::update(const float& deltaTime) {
     if (isPaused)
         return;
 
-    for (auto& particle : particles)
+    // Calculate the sum forces
+    for (size_t i = 0; i < particles.size(); ++i)
     {
-        glm::vec3 sumForces = glm::vec3(0.0F, 0.0F, 0.0F);
-        for (auto& otherParticle : particles)
+        for (size_t j = 0; j < particles.size(); ++j)
         {
-            if (&particle == &otherParticle)
-            {
+            if (i == j)
                 continue;
-            }
 
-            // Calculate the distance between the particle and the point of gravity
-            const glm::vec3 r = otherParticle.position - particle.position;
-            const float rSquared = glm::dot(r, r) + softening;
-
-            // Calculate the force
-            sumForces += ((gravity * particleMass * particleMass * glm::normalize(r)) / rSquared) * isAttracting;
+            glm::vec3 const direction = particles[j].position - particles[i].position;
+            float const distance = glm::length(direction);
+            float const magnitude = (gravity * particleMass * particleMass) / ((distance * distance) + softening);
+            sumForces[i] += magnitude * glm::normalize(direction);
         }
-
-        // Calculate the acceleration
-        const glm::vec3 acceleration = sumForces / particleMass;
-
-        // Calculate the position
-        particle.position += particle.velocity * deltaTime + 0.5F * acceleration * deltaTime * deltaTime;
-
-        // Calculate the velocity
-        particle.velocity += acceleration * deltaTime;
-
-        // Damp the velocity
-        particle.velocity *= damping;
     }
+
+    // Update the particles
+    for (size_t i = 0; i < particles.size(); ++i)
+    {
+        //        particles[i].velocity += deltaTime * sumForces[i];
+        //        particles[i].position += deltaTime * particles[i].velocity;
+        particles[i].position += deltaTime * particles[i].velocity + 0.5F * deltaTime * deltaTime * sumForces[i];
+        particles[i].velocity += deltaTime * sumForces[i];
+        particles[i].velocity *= damping;
+    }
+
+    // Reset the sum forces
+    std::fill(sumForces.begin(), sumForces.end(), glm::vec3(0.0F));
 }
 
 void NBodySimulator::render(glm::mat4 cameraViewMatrix, glm::mat4 cameraProjectionMatrix) {
@@ -149,32 +150,22 @@ void NBodySimulator::reset() {
 void NBodySimulator::randomizeParticles() {
     // Init the random engine
     std::mt19937 randomEngine;
-    std::uniform_real_distribution<float> randomFloats(0.0F, 2.0F * M_PI);
+    std::uniform_real_distribution<float> randomAngle(0.0F, static_cast<float>(2.0F * M_PI));
+    std::uniform_real_distribution<float> randomColorValue(0.0F, 1.0F);
 
     // Init the particles as a sphere
     for (auto& particle : particles)
     {
-        const float angle1 = randomFloats(randomEngine);
-        const float angle2 = randomFloats(randomEngine);
+        const float angle1 = randomAngle(randomEngine);
+        const float angle2 = randomAngle(randomEngine);
         const float x = spawnRadius * std::sin(angle1) * std::cos(angle2);
         const float y = spawnRadius * std::sin(angle1) * std::sin(angle2);
         const float z = spawnRadius * std::cos(angle1);
         particle.position = glm::vec3(x, y, z) + position;
         particle.velocity = glm::vec3(0.0F, 0.0F, 0.0F);
+        particle.color = glm::vec3(randomColorValue(randomEngine), randomColorValue(randomEngine), randomColorValue(randomEngine));
     }
 }
-
-// void NBodySimulator::setAttractorPosition(const glm::vec3& pos) {
-//     attractorPosition = pos;
-// }
-//
-// void NBodySimulator::setIsAttracting(const bool& value) {
-//     isAttracting = value ? 1.0F : 0.0F;
-// }
-//
-// auto NBodySimulator::getIsAttracting() const -> bool {
-//     return isAttracting == 1.0F;
-// }
 
 void NBodySimulator::setParticlesCount(const size_t& count) {
     particles.resize(count);

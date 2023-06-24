@@ -18,18 +18,18 @@ private:
     struct Particle {
         glm::vec3 position;
         glm::vec3 velocity;
+        glm::vec3 color;
 
-        Particle() : position(glm::vec3(0.0F)), velocity(glm::vec3(1.0F, 1.0F, 1.0F)) {}
+        Particle() : position(glm::vec3(0.0F)), velocity(glm::vec3(0.0F)), color(glm::vec3(1.0F, 1.0F, 1.0F)) {}
     };
 
     std::vector<Particle> particles;
-
-    float isAttracting = 1.0F;
+    std::vector<glm::vec3> sumForces;
 
 public:
     float spawnRadius = 3.0F;
     float gravity = 1.0F;
-    float particleMass = 50.0F;
+    float particleMass = 1.0F;
     float softening = 10.0F;
     float damping = 0.99F;
 
@@ -54,12 +54,6 @@ private:
     void randomizeParticles();
 
 public:
-    //     void setAttractorPosition(const glm::vec3& pos);
-    //
-    //     void setIsAttracting(const bool& value);
-    //
-    //     [[nodiscard]] auto getIsAttracting() const -> bool;
-    //
     void setParticlesCount(const size_t& count);
 
     [[nodiscard]] auto getParticlesCount() const -> size_t;

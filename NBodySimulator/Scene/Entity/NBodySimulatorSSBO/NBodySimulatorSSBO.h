@@ -17,11 +17,13 @@ private:
     // Can't use directly vec3 in SSBO (indexed by 4 bytes not 3): https://computergraphics.stackexchange.com/questions/5810/shader-storage-buffer-indexing-by-4-bytes-instead-of-3
     struct Particle {
         glm::vec3 position;
-        [[maybe_unused]] float offset1{};
+        [[maybe_unused]] float offset{};
         glm::vec3 velocity;
+        [[maybe_unused]] float offset1{};
+        glm::vec3 color;
         [[maybe_unused]] float offset2{};
 
-        Particle() : position(glm::vec3(0.0F)), velocity(glm::vec3(0.0F)) {}
+        Particle() : position(glm::vec3(0.0F)), velocity(glm::vec3(0.0F)), color(glm::vec3(1.0F, 1.0F, 1.0F)) {}
     };
 
     int particlesCount;
@@ -31,7 +33,7 @@ private:
 public:
     float spawnRadius = 3.0F;
     float gravity = 1.0F;
-    float particleMass = 50.0F;
+    float particleMass = 1.0F;
     float softening = 10.0F;
     float damping = 0.99F;
 
@@ -56,12 +58,6 @@ private:
     void randomizeParticles(std::vector<Particle>& particles);
 
 public:
-    //    void setAttractorPosition(const glm::vec3& pos);
-    //
-    //    void setIsAttracting(const bool& value);
-    //
-    //    [[nodiscard]] auto getIsAttracting() const -> bool;
-
     void setParticlesCount(const int& value);
 
     [[nodiscard]] auto getParticlesCount() const -> size_t;
