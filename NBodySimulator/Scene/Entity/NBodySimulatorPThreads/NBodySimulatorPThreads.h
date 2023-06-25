@@ -1,12 +1,12 @@
-#ifndef NBODY_SIMULATOR_H
-#define NBODY_SIMULATOR_H
+#ifndef NBODY_SIMULATOR_PTHREADS_H
+#define NBODY_SIMULATOR_PTHREADS_H
 
 #include <vector>
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 #include "../Entity.h"
 
-class NBodySimulator : public Entity {
+class NBodySimulatorPThreads : public Entity {
 private:
     static const char* const VertexShaderSource;
     static const char* const FragmentShaderSource;
@@ -38,14 +38,18 @@ public:
     float damping = 0.99F;
 
 public:
-    explicit NBodySimulator(int particleCount = 100000);
+    const size_t numThreads = 8; // Number of threads to use
 
-    NBodySimulator(const NBodySimulator&) = delete;
-    auto operator=(const NBodySimulator&) -> NBodySimulator& = delete;
-    NBodySimulator(NBodySimulator&&) = delete;
-    auto operator=(NBodySimulator&&) -> NBodySimulator& = delete;
 
-    ~NBodySimulator() override;
+public:
+    explicit NBodySimulatorPThreads(int particleCount = 100000);
+
+    NBodySimulatorPThreads(const NBodySimulatorPThreads&) = delete;
+    auto operator=(const NBodySimulatorPThreads&) -> NBodySimulatorPThreads& = delete;
+    NBodySimulatorPThreads(NBodySimulatorPThreads&&) = delete;
+    auto operator=(NBodySimulatorPThreads&&) -> NBodySimulatorPThreads& = delete;
+
+    ~NBodySimulatorPThreads() override;
 
 public:
     void update(const float& deltaTime) override;
@@ -63,4 +67,4 @@ public:
     [[nodiscard]] auto getParticlesCount() const -> size_t;
 };
 
-#endif // NBODY_SIMULATOR_H
+#endif // NBODY_SIMULATOR_PTHREADS_H

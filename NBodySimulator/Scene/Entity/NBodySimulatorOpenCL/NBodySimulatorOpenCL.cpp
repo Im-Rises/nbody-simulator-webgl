@@ -1,1 +1,0 @@
-#include "NBodySimulatorOpenCL.h"

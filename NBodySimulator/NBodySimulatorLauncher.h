@@ -36,9 +36,6 @@ private:
         float w = 1.0F;
     } clear_color;
 
-    float attractorDistance = 10.0F;
-    glm::vec3 mousePositionWorld;
-
     static constexpr int MAX_PARTICLES_COUNT = 1000000;
 
 #ifndef __EMSCRIPTEN__
