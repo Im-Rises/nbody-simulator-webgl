@@ -13,7 +13,7 @@ endif ()
 
 if (EMSCRIPTEN)
     #    set(CMAKE_EXECUTABLE_SUFFIX ".html") # Add default .html file
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s FULL_ES3=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s FULL_ES3=1 -s WASM=1 -s USE_PTHREADS=1")
 endif ()
 
 add_subdirectory(NBodySimulator)
