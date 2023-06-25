@@ -16,10 +16,11 @@
 > The website work for desktop and mobile, but on mobile you won't be able to use the UI to change the simulation
 > parameters.
 
-
 ## Videos
 
-https://github.com/Im-Rises/nbody-simulator-docker/assets/59691442/59ef1c71-e2bb-4bd5-99f8-66eace4280b5
+https://github.com/Im-Rises/nbody-simulator-docker/assets/59691442/622717a8-b508-4221-a79e-f00c07475979
+
+[//]: # (https://github.com/Im-Rises/nbody-simulator-docker/assets/59691442/59ef1c71-e2bb-4bd5-99f8-66eace4280b5)
 
 ## Dependencies
 
