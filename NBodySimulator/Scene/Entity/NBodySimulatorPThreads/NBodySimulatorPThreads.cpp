@@ -3,7 +3,6 @@
 #include <random>
 
 #include <pthread.h>
-#include <emscripten/bind.h>
 #include <iostream>
 
 #include "../../../Utility/piDeclaration.h"
