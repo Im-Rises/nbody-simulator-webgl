@@ -75,7 +75,7 @@ NBodySimulatorLauncher::NBodySimulatorLauncher() {
 
     // Create window with graphics context
     std::string windowTitle = PROJECT_NAME.data();
-    windowTitle += " (F1 to show/hide UI)";
+    windowTitle += " (U to show/hide UI)";
     window = glfwCreateWindow(displayWidth, displayHeight, windowTitle.c_str(), nullptr, nullptr);
     if (window == nullptr)
         exit(1);
@@ -363,7 +363,7 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
             //             ImGui::SetNextWindowPos(ImVec2(5, 45), ImGuiCond_Once);
             //             ImGui::SetNextWindowCollapsed(isCollapsed, ImGuiCond_Once);
             // #endif
-            ImGui::Begin("Particle simulator settings");
+            ImGui::Begin("NBody simulator settings");
 
             ImGui::Text("Particle count: %s", std::to_string(scene->nbodySimulator.getParticlesCount()).c_str());
             static int particlesCount = static_cast<int>(scene->nbodySimulator.getParticlesCount());

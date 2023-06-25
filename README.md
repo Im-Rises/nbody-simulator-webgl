@@ -89,6 +89,7 @@ The speed and some parameters can be modified directly in the ImGui windows.
 | Rotate camera       | Right Mouse Button + Mouse movement                |
 | Fullscreen          | F11                                                |
 | Drag particles      | Left Mouse Button + Mouse movement or Touch screen |
+| Show/Hide UI        | U                                                  |
 
 > **Note**
 > The translation commands are set for QWERTY keyboard layout.
