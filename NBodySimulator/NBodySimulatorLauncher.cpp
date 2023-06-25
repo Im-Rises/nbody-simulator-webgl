@@ -274,12 +274,6 @@ void NBodySimulatorLauncher::handleInputs() {
     {
         scene->camera.processMouseMovement(static_cast<float>(mouseDeltaX), static_cast<float>(mouseDeltaY));
     }
-
-    //    // Update particle simulator attractor if mouse is pressed or dragging
-    //    bool const isAttracting = InputManager::isKeyMouseSetAttractorPressed(window);
-    //    scene->NBodySimulator.setIsAttracting(isAttracting);
-    //    mousePositionWorld = projectMouse(posX, posY);
-    //    scene->NBodySimulator.setAttractorPosition(mousePositionWorld);
 }
 
 void NBodySimulatorLauncher::handleUi(float deltaTime) {
@@ -291,11 +285,6 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
     if (isUiVisible)
     {
         {
-            // #ifdef __EMSCRIPTEN__
-            //             static bool isCollapsed = true;
-            //             ImGui::SetNextWindowPos(ImVec2(5, 5), ImGuiCond_Once);
-            //             ImGui::SetNextWindowCollapsed(isCollapsed, ImGuiCond_Once);
-            // #endif
             ImGui::Begin("Information");
             ImGui::Text("Author: %s", PROJECT_AUTHOR.data());
             ImGui::Text("Project: %s", PROJECT_NAME.data());
@@ -310,11 +299,6 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
         }
 
         {
-            // #ifdef __EMSCRIPTEN__
-            //             static bool isCollapsed = true;
-            //             ImGui::SetNextWindowPos(ImVec2(5, 25), ImGuiCond_Once);
-            //             ImGui::SetNextWindowCollapsed(isCollapsed, ImGuiCond_Once);
-            // #endif
             ImGui::Begin("Camera settings");
 
             ImGui::Text("Position:");
@@ -358,11 +342,6 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
         }
 
         {
-            // #ifdef __EMSCRIPTEN__
-            //             static bool isCollapsed = true;
-            //             ImGui::SetNextWindowPos(ImVec2(5, 45), ImGuiCond_Once);
-            //             ImGui::SetNextWindowCollapsed(isCollapsed, ImGuiCond_Once);
-            // #endif
             ImGui::Begin("NBody simulator settings");
 
             ImGui::Text("Particle count: %s", std::to_string(scene->nbodySimulator.getParticlesCount()).c_str());
@@ -411,12 +390,8 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
             ImGui::NewLine();
 
             ImGui::Text("Particle mass:");
-            //            ImGui::DragFloat("##particleMass", &scene->nbodySimulator.particleMass, 0.1F, 0.1F, 100.0F);
-            //            ImGui::NewLine();
-
-            //            ImGui::Text("Attractor mass:");
-            //            ImGui::DragFloat("##attractorMass", &scene->nbodySimulator.attractorMass, 0.1F, 0.1F, 100.0F);
-            //            ImGui::NewLine();
+            ImGui::DragFloat("##particleMass", &scene->nbodySimulator.particleMass, 0.1F, 0.1F, 100.0F);
+            ImGui::NewLine();
 
             ImGui::Text("Gravity:");
             ImGui::DragFloat("##gravity", &scene->nbodySimulator.gravity, 0.1F, 0.1F, 100.0F);
@@ -431,29 +406,6 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
 
             ImGui::End();
         }
-
-        //        {
-        // #ifdef __EMSCRIPTEN__
-        //             static bool isCollapsed = true;
-        //             ImGui::SetNextWindowPos(ImVec2(5, 65), ImGuiCond_Once);
-        //             ImGui::SetNextWindowCollapsed(isCollapsed, ImGuiCond_Once);
-        // #endif
-        //            ImGui::Begin("Mouse controls");
-
-        //            ImGui::Text("Is attracting: %s", scene->nbodySimulator.getIsAttracting() ? "true" : "false");
-        //
-        //            ImGui::Text("Mouse position world:");
-        //            ImGui::Text("X: %f", mousePositionWorld.x);
-        //            ImGui::SameLine();
-        //            ImGui::Text("Y: %f", mousePositionWorld.y);
-        //            ImGui::SameLine();
-        //            ImGui::Text("Z: %f", mousePositionWorld.z);
-        //
-        //            ImGui::Text("Attractor distance from camera:");
-        //            ImGui::DragFloat("##attractorDistance", &attractorDistance, 0.1F, 0.0F, 100.0F);
-        //
-        //            ImGui::End();
-        //        }
     }
 
     ImGui::Render();
