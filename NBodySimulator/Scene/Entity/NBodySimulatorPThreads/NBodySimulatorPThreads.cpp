@@ -45,18 +45,7 @@ const char* const NBodySimulatorPThreads::FragmentShaderSource =
         }
 )";
 
-int getNumThreads() {
-    // Call JavaScript code to retrieve the number of logical CPU cores
-    emscripten::val navigator = emscripten::val::global("navigator");
-    emscripten::val hardwareConcurrency = navigator["hardwareConcurrency"];
-
-    // Convert JavaScript value to C++ int
-    int numThreads = hardwareConcurrency.as<int>();
-
-    return numThreads;
-}
-
-NBodySimulatorPThreads::NBodySimulatorPThreads(int particleCount) : shader(VertexShaderSource, FragmentShaderSource, false), numThreads(getNumThreads()) {
+NBodySimulatorPThreads::NBodySimulatorPThreads(int particleCount) : shader(VertexShaderSource, FragmentShaderSource, false) {
     // Resize the particles vector
     particles.resize(particleCount);
     sumForces.resize(particleCount);
