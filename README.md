@@ -1,4 +1,4 @@
-# particle-simulator-webgl
+# nbody-simulator-webgl
 
 <p align="center">
       <img src="https://img.shields.io/badge/C%2B%2B-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt="cppLogo" style="height:60px;"/>
@@ -10,7 +10,7 @@
 
 ## Description
 
-## 🚀🚀[you can try the webgl build online by clicking here](https://im-rises.github.io/particle-simulator-webgl/) 🚀🚀
+## 🚀🚀[you can try the webgl build online by clicking here](https://im-rises.github.io/nbody-simulator-webgl/) 🚀🚀
 
 > **Note**  
 > The website work for desktop and mobile, but on mobile you won't be able to use the UI to change the simulation
@@ -98,12 +98,12 @@ The speed and some parameters can be modified directly in the ImGui windows.
 
 This project uses GitHub Actions to build the project and deploy it to GitHub
 
-[![CodeQL](https://github.com/Im-Rises/particle-simulator-webgl/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/Im-Rises/particle-simulator-webgl/actions/workflows/codeql.yml)
-[![CMake](https://github.com/Im-Rises/particle-simulator-webgl/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/Im-Rises/particle-simulator-webgl/actions/workflows/cmake.yml)
-[![flawfinder](https://github.com/Im-Rises/particle-simulator-webgl/actions/workflows/flawfinder.yml/badge.svg?branch=main)](https://github.com/Im-Rises/particle-simulator-webgl/actions/workflows/flawfinder.yml)
-[![cpp-linter](https://github.com/Im-Rises/particle-simulator-webgl/actions/workflows/cpp-linter.yml/badge.svg?branch=main)](https://github.com/Im-Rises/particle-simulator-webgl/actions/workflows/cpp-linter.yml)
-[![Emscripten-CMake](https://github.com/Im-Rises/particle-simulator-webgl/actions/workflows/emscripten-cmake.yml/badge.svg)](https://github.com/Im-Rises/particle-simulator-webgl/actions/workflows/emscripten-cmake.yml)
-[![Emscripten-Publish](https://github.com/Im-Rises/particle-simulator-webgl/actions/workflows/emscripten-publish.yml/badge.svg)](https://github.com/Im-Rises/particle-simulator-webgl/actions/workflows/emscripten-publish.yml)
+[![CodeQL](https://github.com/Im-Rises/nbody-simulator-webgl/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/Im-Rises/nbody-simulator-webgl/actions/workflows/codeql.yml)
+[![CMake](https://github.com/Im-Rises/nbody-simulator-webgl/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/Im-Rises/nbody-simulator-webgl/actions/workflows/cmake.yml)
+[![flawfinder](https://github.com/Im-Rises/nbody-simulator-webgl/actions/workflows/flawfinder.yml/badge.svg?branch=main)](https://github.com/Im-Rises/nbody-simulator-webgl/actions/workflows/flawfinder.yml)
+[![cpp-linter](https://github.com/Im-Rises/nbody-simulator-webgl/actions/workflows/cpp-linter.yml/badge.svg?branch=main)](https://github.com/Im-Rises/nbody-simulator-webgl/actions/workflows/cpp-linter.yml)
+[![Emscripten-CMake](https://github.com/Im-Rises/nbody-simulator-webgl/actions/workflows/emscripten-cmake.yml/badge.svg)](https://github.com/Im-Rises/nbody-simulator-webgl/actions/workflows/emscripten-cmake.yml)
+[![Emscripten-Publish](https://github.com/Im-Rises/nbody-simulator-webgl/actions/workflows/emscripten-publish.yml/badge.svg)](https://github.com/Im-Rises/nbody-simulator-webgl/actions/workflows/emscripten-publish.yml)
 
 The project is set with a set of different scripts:
 
@@ -163,4 +163,4 @@ Quentin MOREL:
 - @Im-Rises
 - <https://github.com/Im-Rises>
 
-[![GitHub contributors](https://contrib.rocks/image?repo=Im-Rises/particle-simulator-webgl)](https://github.com/Im-Rises/particle-simulator-webgl/graphs/contributors)
+[![GitHub contributors](https://contrib.rocks/image?repo=Im-Rises/nbody-simulator-webgl)](https://github.com/Im-Rises/nbody-simulator-webgl/graphs/contributors)
