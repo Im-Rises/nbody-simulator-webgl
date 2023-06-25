@@ -24,7 +24,7 @@ const char* const NBodySimulatorPThreads::VertexShaderSource =
         {
             gl_Position = u_mvp * vec4(a_position, 1.0);
             v_color = a_color;
-            gl_PointSize = 1.0f;
+            gl_PointSize = 2.0f;
         }
 )";
 
