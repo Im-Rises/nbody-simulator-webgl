@@ -20,6 +20,8 @@ set(IMGUI_SOURCES
 
 file(GLOB_RECURSE SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
+find_package(Threads REQUIRED)
+
 add_executable(${PROJECT_NAME}
         main.cpp
         ${IMGUI_SOURCES}
@@ -27,4 +29,6 @@ add_executable(${PROJECT_NAME}
         ${SRCS}
         )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+target_link_libraries(${PROJECT_NAME} Threads::Threads)
+
+target_link_libraries(${PROJECT_NAME} glfw)

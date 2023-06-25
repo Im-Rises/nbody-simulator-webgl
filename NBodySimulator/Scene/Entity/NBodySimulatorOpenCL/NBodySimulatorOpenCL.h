@@ -1,7 +1,0 @@
-#ifndef NBODY_SIMULATOR_OPENCL_H
-#define NBODY_SIMULATOR_OPENCL_H
-
-class NBodySimulatorOpenCL {
-};
-
-#endif // NBODY_SIMULATOR_OPENCL_H
