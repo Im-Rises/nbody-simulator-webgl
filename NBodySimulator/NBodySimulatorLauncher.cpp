@@ -63,12 +63,6 @@ NBodySimulatorLauncher::NBodySimulatorLauncher() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);           // 3.0+ only
 #endif
 
-#ifdef __EMSCRIPTEN_PTHREADS__
-std::cout << "EMSCRIPTEN_PTHREADS" << std::endl;
-#else
-std::cout << "NOT EMSCRIPTEN_PTHREADS" << std::endl;
-#endif
-
     // Set display size
 #ifdef __EMSCRIPTEN__
     // According to canvas
