@@ -3,6 +3,8 @@
 #include <random>
 
 #include <pthread.h>
+#include <emscripten/bind.h>
+#include <iostream>
 
 #include "../../../Utility/piDeclaration.h"
 
@@ -43,7 +45,18 @@ const char* const NBodySimulatorPThreads::FragmentShaderSource =
         }
 )";
 
-NBodySimulatorPThreads::NBodySimulatorPThreads(int particleCount) : shader(VertexShaderSource, FragmentShaderSource, false) {
+int getNumThreads() {
+    // Call JavaScript code to retrieve the number of logical CPU cores
+    emscripten::val navigator = emscripten::val::global("navigator");
+    emscripten::val hardwareConcurrency = navigator["hardwareConcurrency"];
+
+    // Convert JavaScript value to C++ int
+    int numThreads = hardwareConcurrency.as<int>();
+
+    return numThreads;
+}
+
+NBodySimulatorPThreads::NBodySimulatorPThreads(int particleCount) : shader(VertexShaderSource, FragmentShaderSource, false), numThreads(getNumThreads()) {
     // Resize the particles vector
     particles.resize(particleCount);
     sumForces.resize(particleCount);
@@ -130,8 +143,10 @@ void NBodySimulatorPThreads::update(const float& deltaTime) {
     if (isPaused)
         return;
 
+    // Update delta time
     this->deltaTime = deltaTime;
 
+    // Calculate the number of particles per thread
     const size_t particlesPerThread = particles.size() / numThreads;
 
     // Create threads

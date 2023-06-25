@@ -38,7 +38,9 @@ public:
     float damping = 0.99F;
 
 public:
-    const size_t numThreads = 4; // Number of threads to use
+    // Number of threads to use
+//    const size_t numThreads = 4;
+    const size_t numThreads;
 
 
 public:
