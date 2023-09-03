@@ -98,7 +98,7 @@ void* updateParticlesThread(void* arg) {
     ThreadData* data = static_cast<ThreadData*>(arg);
     NBodySimulatorPThreads* simulator = data->simulator;
 
-    const int particlesInteractionCount = simulator->particles.size() * interactionPercent;
+    const int particlesInteractionCount = simulator->particles.size() * simulator->interactionPercent;
     for (size_t i = data->start; i < data->end; ++i)
     {
         for (size_t j = 0; j < particlesInteractionCount; ++j)
