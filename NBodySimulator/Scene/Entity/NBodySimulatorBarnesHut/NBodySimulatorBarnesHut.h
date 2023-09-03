@@ -36,7 +36,6 @@ public:
     float particleMass = 1.0F;
     float softening = 10.0F;
     float damping = 0.99F;
-    float interactionPercent = 1.0F;
 
 public:
     explicit NBodySimulator(int particleCount = 100000);

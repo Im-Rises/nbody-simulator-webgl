@@ -1,13 +1,10 @@
-#include "NBodySimulatorPThreads.h"
+#include "NBodySimulatorBarnesHut.h"
 
 #include <random>
 
-#include <pthread.h>
-#include <iostream>
-
 #include "../../../Utility/piDeclaration.h"
 
-const char* const NBodySimulatorPThreads::VertexShaderSource =
+const char* const NBodySimulator::VertexShaderSource =
     R"(#version 300 es
 
         precision highp float;
@@ -28,7 +25,7 @@ const char* const NBodySimulatorPThreads::VertexShaderSource =
         }
 )";
 
-const char* const NBodySimulatorPThreads::FragmentShaderSource =
+const char* const NBodySimulator::FragmentShaderSource =
     R"(#version 300 es
 
         precision highp float;
@@ -38,13 +35,11 @@ const char* const NBodySimulatorPThreads::FragmentShaderSource =
         out vec4 o_fragColor;
 
         void main() {
-//            vec3 v_color = vec3(min(v_velocity.y, 0.8f), max(v_velocity.x, 0.5f), min(v_velocity.z, 0.5f));
-//            o_fragColor = vec4(v_color, 1.0f);
             o_fragColor = vec4(v_color, 1.0f);
         }
 )";
 
-NBodySimulatorPThreads::NBodySimulatorPThreads(int particleCount) : shader(VertexShaderSource, FragmentShaderSource, false) {
+NBodySimulator::NBodySimulator(int particleCount) : shader(VertexShaderSource, FragmentShaderSource, false) {
     // Resize the particles vector
     particles.resize(particleCount);
     sumForces.resize(particleCount);
@@ -82,94 +77,45 @@ NBodySimulatorPThreads::NBodySimulatorPThreads(int particleCount) : shader(Verte
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-NBodySimulatorPThreads::~NBodySimulatorPThreads() {
+NBodySimulator::~NBodySimulator() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 }
 
-struct ThreadData {
-    NBodySimulatorPThreads* simulator;
-    size_t start;
-    size_t end;
-    pthread_barrier_t* barrier;
-};
+void NBodySimulator::update(const float& deltaTime) {
+    if (isPaused)
+        return;
 
-void* updateParticlesThread(void* arg) {
-    ThreadData* data = static_cast<ThreadData*>(arg);
-    NBodySimulatorPThreads* simulator = data->simulator;
-
-    const int particlesInteractionCount = simulator->particles.size() * interactionPercent;
-    for (size_t i = data->start; i < data->end; ++i)
+    // Calculate the sum forces
+    for (size_t i = 0; i < particles.size(); ++i)
     {
-        for (size_t j = 0; j < particlesInteractionCount; ++j)
+        for (size_t j = 0; j < particles.size(); ++j)
         {
             if (i == j)
                 continue;
 
-            glm::vec3 const direction = simulator->particles[j].position - simulator->particles[i].position;
+            glm::vec3 const direction = particles[j].position - particles[i].position;
             float const distance = glm::length(direction);
-            float const magnitude = (simulator->gravity * simulator->particleMass * simulator->particleMass) /
-                                    ((distance * distance) + simulator->softening);
-            simulator->sumForces[i] += magnitude * glm::normalize(direction);
+            float const magnitude = (gravity * particleMass * particleMass) / ((distance * distance) + softening);
+            sumForces[i] += magnitude * glm::normalize(direction);
         }
     }
 
-    pthread_barrier_wait(data->barrier);
-
-    for (size_t i = data->start; i < data->end; ++i)
+    // Update the particles
+    for (size_t i = 0; i < particles.size(); ++i)
     {
-        simulator->particles[i].position += simulator->deltaTime * simulator->particles[i].velocity +
-                                            0.5F * simulator->deltaTime * simulator->deltaTime * simulator->sumForces[i];
-        simulator->particles[i].velocity += simulator->deltaTime * simulator->sumForces[i];
-        simulator->particles[i].velocity *= simulator->damping;
-        simulator->sumForces[i] = glm::vec3(0.0F);
+        //        particles[i].velocity += deltaTime * sumForces[i];
+        //        particles[i].position += deltaTime * particles[i].velocity;
+        particles[i].position += deltaTime * particles[i].velocity + 0.5F * deltaTime * deltaTime * sumForces[i];
+        particles[i].velocity += deltaTime * sumForces[i];
+        particles[i].velocity *= damping;
     }
 
-    pthread_exit(NULL);
+    // Reset the sum forces
+    std::fill(sumForces.begin(), sumForces.end(), glm::vec3(0.0F));
 }
 
-void NBodySimulatorPThreads::update(const float& deltaTime) {
-    if (isPaused)
-        return;
-
-    // Update delta time
-    this->deltaTime = deltaTime;
-
-    // Calculate the number of particles per thread
-    const size_t particlesPerThread = particles.size() / numThreads;
-
-    // Create threads
-    pthread_t threads[numThreads];
-    ThreadData threadData[numThreads];
-
-    // Create barrier
-    pthread_barrier_t barrier;
-
-    // Init barrier
-    pthread_barrier_init(&barrier, NULL, numThreads);
-
-    // Create threads for update
-    for (size_t i = 0; i < numThreads; ++i)
-    {
-        threadData[i].simulator = this;
-        threadData[i].start = i * particlesPerThread;
-        threadData[i].end = (i == numThreads - 1) ? particles.size() : (i + 1) * particlesPerThread;
-        threadData[i].barrier = &barrier;
-
-        pthread_create(&threads[i], NULL, updateParticlesThread, &threadData[i]);
-    }
-
-    // Wait for update threads to finish
-    for (size_t i = 0; i < numThreads; ++i)
-    {
-        pthread_join(threads[i], NULL);
-    }
-
-    // Destroy barrier
-    pthread_barrier_destroy(&barrier);
-}
-
-void NBodySimulatorPThreads::render(glm::mat4 cameraViewMatrix, glm::mat4 cameraProjectionMatrix) {
+void NBodySimulator::render(glm::mat4 cameraViewMatrix, glm::mat4 cameraProjectionMatrix) {
     // Bind the VAO
     glBindVertexArray(VAO);
 
@@ -195,11 +141,11 @@ void NBodySimulatorPThreads::render(glm::mat4 cameraViewMatrix, glm::mat4 camera
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void NBodySimulatorPThreads::reset() {
+void NBodySimulator::reset() {
     randomizeParticles();
 }
 
-void NBodySimulatorPThreads::randomizeParticles() {
+void NBodySimulator::randomizeParticles() {
     // Init the random engine
     std::mt19937 randomEngine;
     std::uniform_real_distribution<float> randomAngle(0.0F, static_cast<float>(2.0F * M_PI));
@@ -219,11 +165,11 @@ void NBodySimulatorPThreads::randomizeParticles() {
     }
 }
 
-void NBodySimulatorPThreads::setParticlesCount(const size_t& count) {
+void NBodySimulator::setParticlesCount(const size_t& count) {
     particles.resize(count);
     randomizeParticles();
 }
 
-auto NBodySimulatorPThreads::getParticlesCount() const -> size_t {
+auto NBodySimulator::getParticlesCount() const -> size_t {
     return particles.size();
 }
