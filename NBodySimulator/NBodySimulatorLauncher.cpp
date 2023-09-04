@@ -403,6 +403,10 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
 
             ImGui::Text("Damping:");
             ImGui::DragFloat("##damping", &scene->nbodySimulator.damping, 0.0F, 0.0F, 1.0F);
+            ImGui::NewLine();
+
+            ImGui::Text("Interaction percentage:");
+            ImGui::DragFloat("##interactionPercent", &scene->nbodySimulator.interactionPercent, 0.0F, 0.0F, 1.0F);
 
             ImGui::End();
         }
