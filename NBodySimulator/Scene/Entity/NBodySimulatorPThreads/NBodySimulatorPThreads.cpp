@@ -221,6 +221,7 @@ void NBodySimulatorPThreads::randomizeParticles() {
 
 void NBodySimulatorPThreads::setParticlesCount(const size_t& count) {
     particles.resize(count);
+    sumForces.resize(count);
     randomizeParticles();
 }
 
