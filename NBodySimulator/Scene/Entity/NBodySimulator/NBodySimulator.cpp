@@ -169,6 +169,7 @@ void NBodySimulator::randomizeParticles() {
 
 void NBodySimulator::setParticlesCount(const size_t& count) {
     particles.resize(count);
+    sumForces.resize(count);
     randomizeParticles();
 }
 
