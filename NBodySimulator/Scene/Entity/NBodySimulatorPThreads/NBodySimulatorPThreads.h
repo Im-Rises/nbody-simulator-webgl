@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 #include "../NBodyEntity.h"
 
-class NBodySimulatorPThreads : public Entity {
+class NBodySimulatorPThreads : public NBodyEntity {
 private:
     static const char* const VertexShaderSource;
     static const char* const FragmentShaderSource;
