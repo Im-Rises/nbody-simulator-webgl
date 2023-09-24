@@ -54,6 +54,10 @@ public:
     void setParticlesCount(const size_t& count) final;
 
     [[nodiscard]] auto getParticlesCount() const -> size_t final;
+
+private:
+    float deltaTime = 0.0F;
+
 };
 
 #endif // NBODY_SIMULATOR_PTHREADS_H
