@@ -119,9 +119,10 @@ void* updateParticlesThread(void* arg) {
     for (size_t i = data->start; i < data->end; ++i)
     {
         const auto acceleration = simulator->sumForces[i] / simulator->particleMass;
-        simulator->particles[i].position += simulator->deltaTime * simulator->particles[i].velocity +
-                                            0.5F * simulator->deltaTime * simulator->deltaTime * acceleration;
-        simulator->particles[i].velocity += simulator->deltaTime * acceleration;
+        const float deltaTime = simulator->getDeltaTime();
+        simulator->particles[i].position += deltaTime * simulator->particles[i].velocity +
+                                            0.5F * deltaTime * deltaTime * acceleration;
+        simulator->particles[i].velocity += deltaTime * acceleration;
         simulator->particles[i].velocity *= simulator->damping;
         simulator->sumForces[i] = glm::vec3(0.0F);
     }
@@ -229,4 +230,8 @@ void NBodySimulatorPThreads::setParticlesCount(const size_t& count) {
 
 auto NBodySimulatorPThreads::getParticlesCount() const -> size_t {
     return particles.size();
+}
+
+auto NBodySimulatorPThreads::getDeltaTime() const -> float {
+    return deltaTime;
 }
