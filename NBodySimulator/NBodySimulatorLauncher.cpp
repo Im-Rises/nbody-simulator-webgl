@@ -363,7 +363,7 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
             {
                 scene->useBarnesHutNbodySimulator();
             }
-#ifdef __unix__
+#if defined(__unix__) && !defined(__APPLE__)
             ImGui::Selectable("PThreads##versionPThreads", scene->getIsNbodySimulationType(NBodySimulatorType::PTHREADS));
             if (ImGui::IsItemClicked())
             {

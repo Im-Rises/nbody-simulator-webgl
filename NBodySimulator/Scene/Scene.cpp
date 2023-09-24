@@ -44,7 +44,7 @@ bool Scene::getIsNbodySimulationType(NBodySimulatorType nbodySimulatorType) cons
     return this->nbodySimulatorType == nbodySimulatorType;
 }
 
-#ifdef __unix__
+#if defined(__unix__) && !defined(__APPLE__)
 void Scene::usePThreadsNbodySimulator() {
     if (nbodySimulator != nullptr)
     {

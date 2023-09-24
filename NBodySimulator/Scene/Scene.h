@@ -3,7 +3,7 @@
 
 #include "Camera/Camera.h"
 
-#ifdef __unix__
+#if defined(__unix__) && !defined(__APPLE__)
 #include "Entity/NBodySimulatorPThreads/NBodySimulatorPThreads.h"
 #endif
 
@@ -45,7 +45,7 @@ public:
 
     [[nodiscard]] bool getIsNbodySimulationType(NBodySimulatorType nbodySimulatorType) const;
 
-#ifdef __unix__
+#if defined(__unix__) && !defined(__APPLE__)
     void usePThreadsNbodySimulator();
 #endif
 
