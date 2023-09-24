@@ -55,6 +55,8 @@ public:
 
     [[nodiscard]] auto getParticlesCount() const -> size_t final;
 
+    [[nodiscard]] auto getDeltaTime() const -> float;
+
 private:
     float deltaTime = 0.0F;
 
