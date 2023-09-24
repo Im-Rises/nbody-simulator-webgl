@@ -1,10 +1,11 @@
-#include "NBodySimulator.h"
+#include "NBodySimulatorBarnesHut.h"
 
 #include <random>
+#include <iostream>
 
 #include "../../../Utility/piDeclaration.h"
 
-const char* const NBodySimulator::VertexShaderSource =
+const char* const NBodySimulatorBarnesHut::VertexShaderSource =
     R"(#version 300 es
 
         precision highp float;
@@ -25,7 +26,7 @@ const char* const NBodySimulator::VertexShaderSource =
         }
 )";
 
-const char* const NBodySimulator::FragmentShaderSource =
+const char* const NBodySimulatorBarnesHut::FragmentShaderSource =
     R"(#version 300 es
 
         precision highp float;
@@ -39,13 +40,9 @@ const char* const NBodySimulator::FragmentShaderSource =
         }
 )";
 
-NBodySimulator::NBodySimulator(int particleCount) : shader(VertexShaderSource, FragmentShaderSource, false) {
+NBodySimulatorBarnesHut::NBodySimulatorBarnesHut(int particleCount) : shader(VertexShaderSource, FragmentShaderSource, false) {
     // Resize the particles vector
-    particles.resize(particleCount);
-    sumForces.resize(particleCount);
-
-    // Init the particles
-    randomizeParticles();
+    setParticlesCount(particleCount);
 
     // Init the VAO
     glGenVertexArrays(1, &VAO);
@@ -77,46 +74,35 @@ NBodySimulator::NBodySimulator(int particleCount) : shader(VertexShaderSource, F
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-NBodySimulator::~NBodySimulator() {
+NBodySimulatorBarnesHut::~NBodySimulatorBarnesHut() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 }
 
-void NBodySimulator::update(const float& deltaTime) {
-    if (isPaused)
-        return;
+void NBodySimulatorBarnesHut::update(const float& deltaTime) {
+    BarnesHutOctree octree(Bounds(glm::vec3(0.0F), glm::vec3(20.0F, 20.0F, 20.0F)));
 
-    const int particlesInteractionCount = particles.size() * interactionPercent;
-
-    // Calculate the sum forces
-    for (size_t i = 0; i < particles.size(); ++i)
+    for (auto& particle : particles)
     {
-        for (size_t j = 0; j < particlesInteractionCount; ++j)
-        {
-            if (i == j)
-                continue;
-
-            glm::vec3 const direction = particles[j].position - particles[i].position;
-            float const distance = glm::length(direction);
-            float const magnitude = (gravity * particleMass * particleMass) / ((distance * distance) + softening);
-            sumForces[i] += magnitude * glm::normalize(direction);
-        }
+        octree.insert(&particle);
     }
 
-    // Update the particles
-    for (size_t i = 0; i < particles.size(); ++i)
-    {
-        const auto acceleration = sumForces[i] / particleMass;
-        particles[i].position += deltaTime * particles[i].velocity + 0.5F * deltaTime * deltaTime * acceleration;
-        particles[i].velocity += deltaTime * acceleration;
-        particles[i].velocity *= damping;
+    octree.computeMassDistribution();
 
-        // Reset the sum forces
-        sumForces[i] = glm::vec3(0.0F);
+    for (auto& particle : particles)
+    {
+        octree.computeSumOfForces(particle, theta, gravity, softening);
+        const glm::vec3 acceleration = particle.sumOfForces / particle.mass;
+
+        particle.position += particle.velocity * deltaTime + 0.5F * acceleration * deltaTime * deltaTime;
+        particle.velocity += acceleration * deltaTime;
+        particle.velocity *= damping;
+
+        particle.sumOfForces = glm::vec3(0.0F);
     }
 }
 
-void NBodySimulator::render(glm::mat4 cameraViewMatrix, glm::mat4 cameraProjectionMatrix) {
+void NBodySimulatorBarnesHut::render(glm::mat4 cameraViewMatrix, glm::mat4 cameraProjectionMatrix) {
     // Bind the VAO
     glBindVertexArray(VAO);
 
@@ -142,11 +128,11 @@ void NBodySimulator::render(glm::mat4 cameraViewMatrix, glm::mat4 cameraProjecti
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void NBodySimulator::reset() {
+void NBodySimulatorBarnesHut::reset() {
     randomizeParticles();
 }
 
-void NBodySimulator::randomizeParticles() {
+void NBodySimulatorBarnesHut::randomizeParticles() {
     // Init the random engine
     std::random_device rd;
     std::mt19937 randomEngine(rd());
@@ -164,15 +150,27 @@ void NBodySimulator::randomizeParticles() {
         particle.position = glm::vec3(x, y, z) + position;
         particle.velocity = glm::vec3(0.0F, 0.0F, 0.0F);
         particle.color = glm::vec3(randomColorValue(randomEngine), randomColorValue(randomEngine), randomColorValue(randomEngine));
+        particle.mass = particleMass;
     }
 }
 
-void NBodySimulator::setParticlesCount(const size_t& count) {
-    particles.resize(count);
-    sumForces.resize(count);
-    randomizeParticles();
+void NBodySimulatorBarnesHut::clearParticles() {
+    // Clear the particles vector
+    particles.clear();
 }
 
-auto NBodySimulator::getParticlesCount() const -> size_t {
+auto NBodySimulatorBarnesHut::getParticlesCount() const -> size_t {
     return particles.size();
+}
+
+void NBodySimulatorBarnesHut::setParticlesCount(const size_t& count) {
+    // Clear particles
+    clearParticles();
+
+    // Resize the particles vector
+    for (int i = 0; i < count; i++)
+        particles.emplace_back(i);
+
+    // Init the particles
+    randomizeParticles();
 }

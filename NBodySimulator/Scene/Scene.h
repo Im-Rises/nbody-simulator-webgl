@@ -3,12 +3,20 @@
 
 #include "Camera/Camera.h"
 
-#if defined(__EMSCRIPTEN__)
-//#include "Entity/NBodySimulatorPThreads/NBodySimulatorPThreads.h"
-#include "Entity/NBodySimulator/NBodySimulator.h"
-#else
-#include "Entity/NBodySimulatorSSBO/NBodySimulatorSSBO.h"
+#ifdef __unix__
+#include "Entity/NBodySimulatorPThreads/NBodySimulatorPThreads.h"
 #endif
+
+#include "Entity/NBodySimulator/NBodySimulator.h"
+#include "Entity/NBodySimulatorBarnesHut/NBodySimulatorBarnesHut.h"
+#include "Entity/NBodySimulatorSSBO/NBodySimulatorSSBO.h"
+
+enum class NBodySimulatorType {
+    CPU,
+    PTHREADS,
+    BARNES_HUT,
+    GPU
+};
 
 class Scene {
 private:
@@ -16,13 +24,7 @@ private:
 
 public:
     Camera camera;
-
-#if defined(__EMSCRIPTEN__)
-//    NBodySimulatorPThreads nbodySimulator;
-    NBodySimulator nbodySimulator;
-#else
-    NBodySimulatorSSBO nbodySimulator;
-#endif
+    NBodyEntity* nbodySimulator = nullptr;
 
 public:
     Scene(int display_w, int display_h);
@@ -40,6 +42,22 @@ public:
 
 public:
     [[nodiscard]] auto getIsPaused() const -> bool;
+
+    [[nodiscard]] bool getIsNbodySimulationType(NBodySimulatorType nbodySimulatorType) const;
+
+#ifdef __unix__
+    void usePThreadsNbodySimulator();
+#endif
+
+    void useCPUNbodySimulator();
+    void useBarnesHutNbodySimulator();
+
+#ifndef __EMSCRIPTEN__
+    void useGPUNbodySimulator();
+#endif
+
+private:
+    NBodySimulatorType nbodySimulatorType;
 };
 
 #endif // SCENE_H

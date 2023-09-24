@@ -118,9 +118,10 @@ void* updateParticlesThread(void* arg) {
 
     for (size_t i = data->start; i < data->end; ++i)
     {
+        const auto acceleration = simulator->sumForces[i] / simulator->particleMass;
         simulator->particles[i].position += simulator->deltaTime * simulator->particles[i].velocity +
-                                            0.5F * simulator->deltaTime * simulator->deltaTime * simulator->sumForces[i];
-        simulator->particles[i].velocity += simulator->deltaTime * simulator->sumForces[i];
+                                            0.5F * simulator->deltaTime * simulator->deltaTime * acceleration;
+        simulator->particles[i].velocity += simulator->deltaTime * acceleration;
         simulator->particles[i].velocity *= simulator->damping;
         simulator->sumForces[i] = glm::vec3(0.0F);
     }
@@ -201,7 +202,8 @@ void NBodySimulatorPThreads::reset() {
 
 void NBodySimulatorPThreads::randomizeParticles() {
     // Init the random engine
-    std::mt19937 randomEngine;
+    std::random_device rd;
+    std::mt19937 randomEngine(rd());
     std::uniform_real_distribution<float> randomAngle(0.0F, static_cast<float>(2.0F * M_PI));
     std::uniform_real_distribution<float> randomColorValue(0.0F, 1.0F);
 

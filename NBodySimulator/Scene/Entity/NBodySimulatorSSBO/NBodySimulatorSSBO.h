@@ -5,9 +5,9 @@
 
 #include <glad/glad.h>
 #include <vector>
-#include "../Entity.h"
+#include "../NBodyEntity.h"
 
-class NBodySimulatorSSBO : public Entity {
+class NBodySimulatorSSBO : public NBodyEntity {
 private:
     GLuint VAO;
     GLuint ssbo;
@@ -26,17 +26,9 @@ private:
         Particle() : position(glm::vec3(0.0F)), velocity(glm::vec3(0.0F)), color(glm::vec3(1.0F, 1.0F, 1.0F)) {}
     };
 
-    int particlesCount;
+    size_t particlesCount;
 
     float deltaTime = 0.0F;
-
-public:
-    float spawnRadius = 3.0F;
-    float gravity = 1.0F;
-    float particleMass = 1.0F;
-    float softening = 10.0F;
-    float damping = 0.99F;
-    float interactionPercent = 1.0F;
 
 public:
     explicit NBodySimulatorSSBO(int particlesCount = 1000000);
@@ -49,19 +41,19 @@ public:
     ~NBodySimulatorSSBO() override;
 
 public:
-    void update(const float& deltaTime) override;
+    void update(const float& deltaTime) final;
 
-    void render(glm::mat4 cameraViewMatrix, glm::mat4 cameraProjectionMatrix) override;
+    void render(glm::mat4 cameraViewMatrix, glm::mat4 cameraProjectionMatrix) final;
 
-    void reset();
+    void reset() final;
 
 private:
     void randomizeParticles(std::vector<Particle>& particles);
 
 public:
-    void setParticlesCount(const int& value);
+    void setParticlesCount(const size_t& count) final;
 
-    [[nodiscard]] auto getParticlesCount() const -> size_t;
+    [[nodiscard]] auto getParticlesCount() const -> size_t final;
 };
 
 #endif // NBODY_SIMULATOR_SSBO_H
