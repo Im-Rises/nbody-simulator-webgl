@@ -344,13 +344,41 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
         {
             ImGui::Begin("NBody simulator settings");
 
-            ImGui::Text("Particle count: %s", std::to_string(scene->nbodySimulator.getParticlesCount()).c_str());
-            static int particlesCount = static_cast<int>(scene->nbodySimulator.getParticlesCount());
+            // Selector to select version of the simulator
+            ImGui::Text("NBody Simulation Version selection:");
+            ImGui::Selectable("CPU##versionCPU", scene->getIsNbodySimulationType(NBodySimulatorType::CPU));
+            if (ImGui::IsItemClicked())
+            {
+                scene->useCPUNbodySimulator();
+            }
+#ifndef __EMSCRIPTEN__
+            ImGui::Selectable("GPU##versionGPU", scene->getIsNbodySimulationType(NBodySimulatorType::GPU));
+            if (ImGui::IsItemClicked())
+            {
+                scene->useGPUNbodySimulator();
+            }
+#endif
+            ImGui::Selectable("Barnes-Hut##versionBarnesHut", scene->getIsNbodySimulationType(NBodySimulatorType::BARNES_HUT));
+            if (ImGui::IsItemClicked())
+            {
+                scene->useBarnesHutNbodySimulator();
+            }
+#if defined(__unix__) && !defined(__APPLE__)
+            ImGui::Selectable("PThreads##versionPThreads", scene->getIsNbodySimulationType(NBodySimulatorType::PTHREADS));
+            if (ImGui::IsItemClicked())
+            {
+                scene->usePThreadsNbodySimulator();
+            }
+#endif
+            ImGui::NewLine();
+
+            ImGui::Text("Particle count: %s", std::to_string(scene->nbodySimulator->getParticlesCount()).c_str());
+            static int particlesCount = static_cast<int>(scene->nbodySimulator->getParticlesCount());
             ImGui::DragInt("##particlesCount", &particlesCount, 1, 1, MAX_PARTICLES_COUNT);
             ImGui::Button("Validate##ParticlesCountSetterButton");
             if (ImGui::IsItemClicked())
             {
-                scene->nbodySimulator.setParticlesCount(particlesCount);
+                scene->nbodySimulator->setParticlesCount(particlesCount);
             }
             ImGui::NewLine();
 
@@ -382,31 +410,34 @@ void NBodySimulatorLauncher::handleUi(float deltaTime) {
 #endif
 
             ImGui::Text("Spawn position:");
-            ImGui::DragFloat3("##spawnPosition", reinterpret_cast<float*>(&scene->nbodySimulator.position));
+            ImGui::DragFloat3("##spawnPosition", reinterpret_cast<float*>(&scene->nbodySimulator->position));
             ImGui::NewLine();
 
             ImGui::Text("Spawn radius:");
-            ImGui::DragFloat("##spawnRadius", &scene->nbodySimulator.spawnRadius, 0.1F, 0.1F, 100.0F);
+            ImGui::DragFloat("##spawnRadius", &scene->nbodySimulator->spawnRadius, 0.1F, 0.1F, 100.0F);
             ImGui::NewLine();
 
             ImGui::Text("Particle mass:");
-            ImGui::DragFloat("##particleMass", &scene->nbodySimulator.particleMass, 0.1F, 0.1F, 100.0F);
+            ImGui::DragFloat("##particleMass", &scene->nbodySimulator->particleMass, 0.1F, 0.1F, 100.0F);
             ImGui::NewLine();
 
             ImGui::Text("Gravity:");
-            ImGui::DragFloat("##gravity", &scene->nbodySimulator.gravity, 0.1F, 0.1F, 100.0F);
+            ImGui::DragFloat("##gravity", &scene->nbodySimulator->gravity, 0.1F, 0.1F, 100.0F);
             ImGui::NewLine();
 
             ImGui::Text("Softening:");
-            ImGui::DragFloat("##softening", &scene->nbodySimulator.softening, 0.1F, 0.1F, 100.0F);
+            ImGui::DragFloat("##softening", &scene->nbodySimulator->softening, 0.1F, 0.1F, 100.0F);
             ImGui::NewLine();
 
             ImGui::Text("Damping:");
-            ImGui::DragFloat("##damping", &scene->nbodySimulator.damping, 0.0F, 0.0F, 1.0F);
+            ImGui::DragFloat("##damping", &scene->nbodySimulator->damping, 0.0F, 0.0F, 1.0F);
             ImGui::NewLine();
 
-            ImGui::Text("Interaction percentage:");
-            ImGui::DragFloat("##interactionPercent", &scene->nbodySimulator.interactionPercent, 0.0F, 0.0F, 1.0F);
+            ImGui::Text("Interaction percentage (GPU and CPU):");
+            ImGui::DragFloat("##interactionPercent", &scene->nbodySimulator->interactionPercent, 0.0F, 0.0F, 1.0F);
+
+            ImGui::Text("Theta (Barnes-Hut):");
+            ImGui::DragFloat("##theta", &scene->nbodySimulator->theta, 0.0F, 0.0F, 1.0F);
 
             ImGui::End();
         }

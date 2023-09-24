@@ -12,7 +12,7 @@ struct GLFWwindow;
 class NBodySimulatorLauncher {
 public:
     static constexpr std::string_view PROJECT_NAME = "NBody Simulator 3D";
-    static constexpr std::string_view PROJECT_VERSION = "1.0.1";
+    static constexpr std::string_view PROJECT_VERSION = "1.1.0";
     static constexpr std::string_view PROJECT_LINK = "https://github.com/Im-Rises/NBodySimulator";
     static constexpr std::string_view PROJECT_AUTHOR = "Im-Rises (Quentin Morel)";
 
