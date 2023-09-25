@@ -67,6 +67,14 @@ auto InputManager::isDownKeyPressed(GLFWwindow* window) -> bool {
     return glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS;
 }
 
+auto InputManager::isShiftKeyPressed(GLFWwindow* window) -> bool {
+    return glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
+}
+
+auto InputManager::isControlKeyPressed(GLFWwindow* window) -> bool {
+    return glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
+}
+
 auto InputManager::isKeyMouseMovementPressed(GLFWwindow* window) -> bool {
     return glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
 }
@@ -78,7 +86,6 @@ auto InputManager::isKeyMouseSetAttractorPressed(GLFWwindow* window) -> bool {
 void InputManager::getMousePosition(GLFWwindow* window, double& xPos, double& yPos) {
     glfwGetCursorPos(window, &xPos, &yPos);
 }
-
 
 #ifdef __EMSCRIPTEN__
 InputManager::DragMovementData InputManager::dragMovementData = { 0.0F, 0.0F, false };

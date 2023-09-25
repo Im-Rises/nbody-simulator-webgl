@@ -1,5 +1,5 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-vararg"
+#ifndef NBODY_SIMULATOR_LAUNCHER_H
+#define NBODY_SIMULATOR_LAUNCHER_H
 
 #include "NBodySimulatorLauncher.h"
 
@@ -242,10 +242,10 @@ void NBodySimulatorLauncher::handleInputs() {
     if (InputManager::isBackwardKeyPressed(window))
         scene->camera.moveBackward();
 
-    if (InputManager::isUpKeyPressed(window))
+    if (InputManager::isUpKeyPressed(window) || InputManager::isShiftKeyPressed(window))
         scene->camera.moveUp();
 
-    if (InputManager::isDownKeyPressed(window))
+    if (InputManager::isDownKeyPressed(window) || InputManager::isControlKeyPressed(window))
         scene->camera.moveDown();
 
     /* Read and update mouse controls */
@@ -581,4 +581,4 @@ auto NBodySimulatorLauncher::getGLMVersion() -> std::string {
            std::to_string(GLM_VERSION_PATCH);
 }
 
-#pragma clang diagnostic pop
+#endif

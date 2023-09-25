@@ -31,6 +31,10 @@ public:
 
     static auto isDownKeyPressed(GLFWwindow* window) -> bool;
 
+    static auto isShiftKeyPressed(GLFWwindow* window) -> bool;
+
+    static auto isControlKeyPressed(GLFWwindow* window) -> bool;
+
     /*
      * Functions for mouse movement (used for each game loop iteration)
      */

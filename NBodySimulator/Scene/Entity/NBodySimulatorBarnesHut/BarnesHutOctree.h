@@ -5,8 +5,8 @@
 #include <list>
 #include <array>
 
-constexpr int MAX_DEPTH = 100;
-constexpr int CAPACITY = 4;
+constexpr int MAX_DEPTH = 1000;
+constexpr int CAPACITY = 1;
 
 struct Particle {
     float mass;
@@ -14,24 +14,31 @@ struct Particle {
     glm::vec3 velocity;
     glm::vec3 sumOfForces;
     glm::vec3 color;
-    int id;
+    const int id;
 
     explicit Particle(int id) : id(id), mass(1.0F), position(glm::vec3(0.0F)), velocity(glm::vec3(0.0F)), sumOfForces(glm::vec3(0.0F)), color(1.0F, 1.0F, 1.0F) {}
     Particle(int id, float mass, glm::vec3 position, glm::vec3 velocity, glm::vec3 color) : id(id), mass(mass), position(position), velocity(velocity), sumOfForces(glm::vec3(0.0F)), color(color) {}
+
+    void appendForceFrom(glm::vec3 otherPos, float otherMass, float gravity, float softening) {
+        const auto direction = otherPos - position;
+        const auto distance = glm::length(direction);
+        const auto magnitude = (gravity * mass * otherMass) / ((distance * distance) + softening);
+        sumOfForces += magnitude * glm::normalize(direction);
+    }
 };
 
 struct Bounds {
-    glm::vec3 center;
-    glm::vec3 halfDimension;
+    const glm::vec3 center;
+    const float halfDimension;
 
 
-    Bounds(glm::vec3 center, glm::vec3 halfDimension) : center(center),
-                                                        halfDimension(halfDimension) {}
+    Bounds(glm::vec3 center, float halfDimension) : center(center),
+                                                    halfDimension(halfDimension) {}
 
     [[nodiscard]] auto contains(const Particle& particle) const -> bool {
-        return particle.position.x >= center.x - halfDimension.x && particle.position.x <= center.x + halfDimension.x &&
-               particle.position.y >= center.y - halfDimension.y && particle.position.y <= center.y + halfDimension.y &&
-               particle.position.z >= center.z - halfDimension.z && particle.position.z <= center.z + halfDimension.z;
+        return particle.position.x >= center.x - halfDimension && particle.position.x <= center.x + halfDimension &&
+               particle.position.y >= center.y - halfDimension && particle.position.y <= center.y + halfDimension &&
+               particle.position.z >= center.z - halfDimension && particle.position.z <= center.z + halfDimension;
     }
 };
 
@@ -60,12 +67,13 @@ private:
     private:
         std::array<BarnesHutOctreeNode*, 8> children;
         std::list<Particle*> particles;
-        Bounds bounds;
+        const Bounds bounds;
         bool isLeaf;
         int depth;
 
         glm::vec3 centerOfMass;
         float mass;
+
         friend class BarnesHutOctree;
     };
 

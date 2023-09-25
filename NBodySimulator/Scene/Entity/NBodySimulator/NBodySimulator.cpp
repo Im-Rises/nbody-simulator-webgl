@@ -86,7 +86,7 @@ void NBodySimulator::update(const float& deltaTime) {
     if (isPaused)
         return;
 
-    const int particlesInteractionCount = particles.size() * interactionPercent;
+    const int particlesInteractionCount = static_cast<int>(particles.size() * interactionPercent);
 
     // Calculate the sum forces
     for (size_t i = 0; i < particles.size(); ++i)

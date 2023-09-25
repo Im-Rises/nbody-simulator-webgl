@@ -10,6 +10,15 @@
 
 ## Description
 
+This project is an n-body simulator that uses OpenGL and ImGui to render the simulation and to change the simulation parameters.
+
+You can choose between different types of simulation:
+- CPU
+- GPU
+- Barnes-Hut algorithm
+
+The different algorithm still need some work to be optimized, but they are currently working.
+
 ## 🚀🚀[you can try the webgl build online by clicking here](https://im-rises.github.io/nbody-simulator-webgl/) 🚀🚀
 
 > **Note**  

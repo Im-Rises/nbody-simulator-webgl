@@ -59,7 +59,7 @@ void NBodySimulatorSSBO::render(glm::mat4 cameraViewMatrix, glm::mat4 cameraProj
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
 
     // Draw the particles
-    glDrawArrays(GL_POINTS, 0, particlesCount);
+    glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(particlesCount));
 
     // Barrier
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
