@@ -80,7 +80,7 @@ NBodySimulatorBarnesHut::~NBodySimulatorBarnesHut() {
 }
 
 void NBodySimulatorBarnesHut::update(const float& deltaTime) {
-    BarnesHutOctree octree(Bounds(glm::vec3(0.0F), glm::vec3(20.0F, 20.0F, 20.0F)));
+    BarnesHutOctree octree(Bounds(glm::vec3(0.0F), 10.0F));
 
     for (auto& particle : particles)
     {
@@ -97,6 +97,8 @@ void NBodySimulatorBarnesHut::update(const float& deltaTime) {
         particle.position += particle.velocity * deltaTime + 0.5F * acceleration * deltaTime * deltaTime;
         particle.velocity += acceleration * deltaTime;
         particle.velocity *= damping;
+        //        particle.velocity += acceleration * deltaTime;
+        //        particle.position += particle.velocity * deltaTime;
 
         particle.sumOfForces = glm::vec3(0.0F);
     }

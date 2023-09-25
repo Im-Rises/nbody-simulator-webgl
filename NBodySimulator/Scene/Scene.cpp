@@ -40,7 +40,7 @@ auto Scene::getIsPaused() const -> bool {
     return isPaused;
 }
 
-bool Scene::getIsNbodySimulationType(NBodySimulatorType nbodySimulatorType) const {
+auto Scene::getIsNbodySimulationType(NBodySimulatorType nbodySimulatorType) const -> bool {
     return this->nbodySimulatorType == nbodySimulatorType;
 }
 

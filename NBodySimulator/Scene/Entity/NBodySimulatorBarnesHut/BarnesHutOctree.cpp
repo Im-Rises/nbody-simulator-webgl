@@ -31,7 +31,7 @@ auto BarnesHutOctree::BarnesHutOctreeNode::insert(Particle* particle) -> bool {
             return true;
         }
 
-        subdivide();
+        this->subdivide();
     }
     return (
         children[0]->insert(particle) ||
@@ -46,34 +46,34 @@ auto BarnesHutOctree::BarnesHutOctreeNode::insert(Particle* particle) -> bool {
 
 void BarnesHutOctree::BarnesHutOctreeNode::subdivide() {
     isLeaf = false;
-    const auto newHalfDimension = bounds.halfDimension * 0.5F;
     const auto x = bounds.center.x;
     const auto y = bounds.center.y;
     const auto z = bounds.center.z;
+    const auto newHalfDimension = bounds.halfDimension * 0.5F;
     const int newDepth = depth + 1;
-    children[0] = new BarnesHutOctreeNode(Bounds(glm::vec3(x - newHalfDimension.x, y - newHalfDimension.y, z - newHalfDimension.z), newHalfDimension), newDepth);
-    children[1] = new BarnesHutOctreeNode(Bounds(glm::vec3(x + newHalfDimension.x, y - newHalfDimension.y, z - newHalfDimension.z), newHalfDimension), newDepth);
-    children[2] = new BarnesHutOctreeNode(Bounds(glm::vec3(x - newHalfDimension.x, y + newHalfDimension.y, z - newHalfDimension.z), newHalfDimension), newDepth);
-    children[3] = new BarnesHutOctreeNode(Bounds(glm::vec3(x + newHalfDimension.x, y + newHalfDimension.y, z - newHalfDimension.z), newHalfDimension), newDepth);
-    children[4] = new BarnesHutOctreeNode(Bounds(glm::vec3(x - newHalfDimension.x, y - newHalfDimension.y, z + newHalfDimension.z), newHalfDimension), newDepth);
-    children[5] = new BarnesHutOctreeNode(Bounds(glm::vec3(x + newHalfDimension.x, y - newHalfDimension.y, z + newHalfDimension.z), newHalfDimension), newDepth);
-    children[6] = new BarnesHutOctreeNode(Bounds(glm::vec3(x - newHalfDimension.x, y + newHalfDimension.y, z + newHalfDimension.z), newHalfDimension), newDepth);
-    children[7] = new BarnesHutOctreeNode(Bounds(glm::vec3(x + newHalfDimension.x, y + newHalfDimension.y, z + newHalfDimension.z), newHalfDimension), newDepth);
+
+    children[0] = new BarnesHutOctreeNode(Bounds(glm::vec3(x - newHalfDimension, y - newHalfDimension, z - newHalfDimension), newHalfDimension), newDepth);
+    children[1] = new BarnesHutOctreeNode(Bounds(glm::vec3(x + newHalfDimension, y - newHalfDimension, z - newHalfDimension), newHalfDimension), newDepth);
+    children[2] = new BarnesHutOctreeNode(Bounds(glm::vec3(x - newHalfDimension, y + newHalfDimension, z - newHalfDimension), newHalfDimension), newDepth);
+    children[3] = new BarnesHutOctreeNode(Bounds(glm::vec3(x + newHalfDimension, y + newHalfDimension, z - newHalfDimension), newHalfDimension), newDepth);
+    children[4] = new BarnesHutOctreeNode(Bounds(glm::vec3(x - newHalfDimension, y - newHalfDimension, z + newHalfDimension), newHalfDimension), newDepth);
+    children[5] = new BarnesHutOctreeNode(Bounds(glm::vec3(x + newHalfDimension, y - newHalfDimension, z + newHalfDimension), newHalfDimension), newDepth);
+    children[6] = new BarnesHutOctreeNode(Bounds(glm::vec3(x - newHalfDimension, y + newHalfDimension, z + newHalfDimension), newHalfDimension), newDepth);
+    children[7] = new BarnesHutOctreeNode(Bounds(glm::vec3(x + newHalfDimension, y + newHalfDimension, z + newHalfDimension), newHalfDimension), newDepth);
+
     for (auto* particle : particles)
     {
-        children[0]->insert(particle);
-        children[1]->insert(particle);
-        children[2]->insert(particle);
-        children[3]->insert(particle);
-        children[4]->insert(particle);
-        children[5]->insert(particle);
-        children[6]->insert(particle);
-        children[7]->insert(particle);
+        for (auto* child : children)
+        {
+            child->insert(particle);
+        }
     }
 
     particles.clear();
+
     this->isLeaf = false;
 }
+
 void BarnesHutOctree::BarnesHutOctreeNode::computeMassDistribution() {
     if (!this->isLeaf)
     {
@@ -81,55 +81,54 @@ void BarnesHutOctree::BarnesHutOctreeNode::computeMassDistribution() {
         {
             child->computeMassDistribution();
             this->mass += child->mass;
-            this->bounds.center += child->bounds.center * child->mass;
+            this->centerOfMass += child->centerOfMass * child->mass;
         }
 
-        this->bounds.center /= this->mass;
+        this->centerOfMass /= this->mass;
     }
-    else if (this->particles.size() > 0)
+    else if (!this->particles.empty())
     {
-        for (const auto* particles : particles)
+        for (const auto* p : particles)
         {
-            this->mass += particles->mass;
-            this->bounds.center += particles->position * particles->mass;
+            this->mass += p->mass;
+            this->centerOfMass += p->position;
         }
 
-        this->bounds.center /= this->mass;
+        this->centerOfMass /= this->particles.size();
     }
     else
     {
-        // This part is not necessary, but it is good to have it ?
         this->mass = 0;
-        this->bounds.center = glm::vec3(0);
+        this->centerOfMass = glm::vec3(0);
     }
 }
 
 void BarnesHutOctree::BarnesHutOctreeNode::computeSumOfForces(Particle& particle, float theta, float gravity, float softening) const {
-    // Check this method (thanks copilot for auto generating it)
-    const float s = bounds.halfDimension.x * 2;
+    const float s = bounds.halfDimension * 2;
     const float d = glm::distance(particle.position, bounds.center);
 
-    if (isLeaf || s / d < theta)
+    if (s / d < theta)
     {
-        if (this->particles.size() > 0)
+        particle.appendForceFrom(this->bounds.center, this->mass, gravity, softening);
+    }
+    else
+    {
+        if (!this->isLeaf)
+        {
+            for (const auto* child : children)
+            {
+                child->computeSumOfForces(particle, theta, gravity, softening);
+            }
+        }
+        else
         {
             for (const auto* other : this->particles)
             {
                 if (particle.id != other->id)
                 {
-                    const auto direction = other->position - particle.position;
-                    const auto distance = glm::length(direction);
-                    const auto magnitude = (gravity * particle.mass * other->mass) / ((distance * distance) + softening);
-                    particle.sumOfForces += magnitude * glm::normalize(direction);
+                    particle.appendForceFrom(other->position, other->mass, gravity, softening);
                 }
             }
-        }
-    }
-    else
-    {
-        for (const auto* child : children)
-        {
-            child->computeSumOfForces(particle, theta, gravity, softening);
         }
     }
 }
